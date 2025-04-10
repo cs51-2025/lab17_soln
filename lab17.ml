@@ -65,7 +65,7 @@ let area_adt (s : shape_adt) : float =
   match s with
   | Square (_, s) -> s *. s
   | Rect (_, w, h) -> w *. h
-  | Circle (_, r) -> Float.pi *. r *. r ;;
+  | Circle (_, r) -> Float.pi *. r ** 2. ;;
 
 (*....................................................................
 Exercise 1B: Write a function `list_area_adt` that, given a list of
@@ -117,8 +117,9 @@ possible variants at the time of type definition.
 
 We can resolve this difficulty with object-oriented programming.
 
-Below, we've created a class type (or interface). Interfaces define
-a new type and define methods for us to interact with this new type.
+Below, we've created a class type (or interface). Interfaces define a
+new type and specify methods for us to interact with objects of this
+new type.
 
 Once we have defined this class type, we can create new shapes by
 defining classes that implement the shape interface. *)
@@ -221,7 +222,7 @@ class rect (initial_pos : point)
 
     (* Destructively update `pos` to translate the shape by the values
        given by `vector`. *)
-    method translate ((vector_x, vector_y) : point) : unit =
+    method translate (vector_x, vector_y : point) : unit =
       let x, y = pos in
       pos <- x +. vector_x, y +. vector_y
 
@@ -243,7 +244,7 @@ class circle (initial_center : point)
     val mutable center = initial_center
     val mutable radius = initial_radius
 
-    method area : float = Float.pi *. radius *. radius
+    method area : float = Float.pi *. radius ** 2.
 
     method bounding_box : point * point =
       let x, y = center in
@@ -286,6 +287,8 @@ class square (initial_pos : point) (initial_side : float) : shape =
       let (x1, y1), (x2, y2) = this#bounding_box in
       (x1 +. x2) /. 2., (y1 +. y2) /. 2.
 
+    (* Destructively update `pos` to translate the shape by the values
+       given by `vector`. *)
     method translate ((vector_x, vector_y) : point) : unit =
       let x, y = pos in
       pos <- x +. vector_x, y +. vector_y
@@ -420,12 +423,12 @@ class square_center_scale (p : point) (s : float) : shape =
     inherit square_rect p s as super
 
     method! scale (k : float) : unit =
-      let (x1, y1) = this#center in
+      let x1, y1 = this#center in
       (* scale *)
       let _ = super#scale k in
-      let (x2, y2) = this#center in
+      let x2, y2 = this#center in
       (* translate back to center *)
-      this#translate ((x1 -. x2), (y1 -. y2))
+      this#translate (x1 -. x2, y1 -. y2)
   end ;;
 
 (* Some in lab were enticed to try to directly refer to the `pos`
@@ -531,10 +534,10 @@ class rect_quad (initial_pos : point)
     inherit rect initial_pos initial_width initial_height as super
 
     method sides : float * float * float * float =
-      let ((x1, y1), (x2, y2)) = super#bounding_box in
+      let (x1, y1), (x2, y2) = super#bounding_box in
       let width = x2 -. x1 in
       let height = y2 -. y1 in
-      (width, height, width, height)
+      width, height, width, height
   end ;;
 
 (* We can't just use `initial_width` and `initial_height` in the
