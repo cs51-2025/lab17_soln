@@ -366,30 +366,30 @@ We can reimplement `square` to *inherit* from `rect`, and thus rely on
 
 In the end, we'll have this revised type hierarchy:
 
-                        +------------+
-                        |            |
-                        |  shape (I) |
-                        |            |
-                        +--^---^---^-+
-                           |   |   |
-              implements   |   |   | implements
-            +--------------+   |   +-------------+
-            |                  |                 |
-            |       implements |                 |
-            |                  |                 |
-     +------+------+     +-----+------+   +------+------+
-     |             |     |            |   |             |
-     |  square (C) |     |  rect (C)  |   | circle (C)  |
-     |             |     |            |   |             |
-     +-------------+     +-----^------+   +-------------+
-                               |
-                               | inherits
-                               |
-                      +--------+--------+
-                      |                 |
-                      | square_rect (C) |
-                      |                 |
-                      +-----------------+
+                        +----------------+
+                        |                |
+                        |    shape (I)   |
+                        |                |
+                        +--^---^---^---^-+
+                           |   |   |   |
+            implements     |   |   |   |  implements
+            +--------------+   |   |   +-----------+
+            |                  |   |               |
+            |       implements |   +-----+         |
+            |                  |         |         |
+     +------+------+     +-----+------+  |  +------+------+
+     |             |     |            |  |  |             |
+     |  square (C) |     |  rect (C)  |  |  | circle (C)  |
+     |             |     |            |  |  |             |
+     +-------------+     +-----^------+  |  +-------------+
+                               |         |
+                      inherits |         | implements
+                               |         |
+                          +----+---------+-+
+                          |                 |
+                          | square_rect (C) |
+                          |                 |
+                          +-----------------+
 
 ......................................................................
 Exercise 3A: Implement the `square_rect` class which inherits all of
@@ -401,9 +401,9 @@ problem. Consequently, you're code won't compile on Gradescope until
 you complete these problems.
 ....................................................................*)
 
-class square_rect (p : point) (s : float) : shape =
+class square_rect (center : point) (side : float) : shape =
   object
-    inherit rect p s s
+    inherit rect center side side
   end ;;
 
 (*....................................................................
@@ -418,9 +418,9 @@ A hint: First scale, then translate the center back to its original
 position.
 ....................................................................*)
 
-class square_center_scale (p : point) (s : float) : shape =
+class square_center_scale (center : point) (side : float) : shape =
   object (this)
-    inherit square_rect p s as super
+    inherit square_rect center side as super
 
     method! scale (k : float) : unit =
       let x1, y1 = this#center in
